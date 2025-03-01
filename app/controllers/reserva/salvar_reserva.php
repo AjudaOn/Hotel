@@ -82,6 +82,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Processar os dados do formulário
     $dados = $_POST;
     
+    // Remover o código de debug
+    // echo "<h2>Dados recebidos do formulário:</h2>";
+    // echo "<pre>";
+    // print_r($dados);
+    // echo "</pre>";
+    // exit; // Parar a execução para vermos o debug
+    
     // Após salvar a reserva com sucesso
     $resultado = reserva_salvarReserva($db, $dados);
 

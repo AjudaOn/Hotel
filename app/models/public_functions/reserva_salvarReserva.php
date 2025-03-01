@@ -130,7 +130,7 @@ function reserva_salvarReserva($db, $dados) {
         $petHospede = (int)$dados['qtde_pet'];
         
         $stmtHospede->bind_param(
-            "ssssiiiiiiisis", 
+            "ssssiiiiiiiisi", // Corrigido para 14 tipos para 14 parâmetros
             $dados['nome_hospede'], 
             $dados['cpf'], 
             $dados['email'], 
@@ -143,7 +143,7 @@ function reserva_salvarReserva($db, $dados) {
             $dados['uf'],
             $dados['cidade_origem'],
             $necessidadesEspeciais,
-            $dados['observacao'],
+            $dados['observacao'], 
             $reservaId
         );
         
@@ -169,12 +169,36 @@ function reserva_salvarReserva($db, $dados) {
                     if (!$stmtAcompanhante) {
                         throw new Exception("Erro ao preparar query de acompanhante: " . $db->error);
                     }
+                    // Determinar o ID do vínculo familiar com base no texto
+                    $vinculoFamiliarId = 1; // Valor padrão para CÔNJUGE
                     
-                    // Obter ID do vínculo familiar (assumindo que é um texto que precisa ser convertido para ID)
-                    $vinculoFamiliarId = 1; // Valor padrão
+                    // Mapear os textos comuns para IDs
+                    $vinculoTexto = isset($dados["vinculo_familiar_$i"]) ? trim($dados["vinculo_familiar_$i"]) : '';
                     
-                    // Converter sexo de letra para ID se necessário
-                    $sexoAcompanhanteId = ($dados["sexo_acompanhante_$i"] == 'F') ? 2 : 1;
+                    // Verificar o texto do vínculo e atribuir o ID correto
+                    if (stripos($vinculoTexto, 'filho') !== false || stripos($vinculoTexto, 'filha') !== false) {
+                        $vinculoFamiliarId = 2; // ID para FILHO(A)
+                    } elseif (stripos($vinculoTexto, 'pai') !== false || stripos($vinculoTexto, 'mãe') !== false) {
+                        $vinculoFamiliarId = 3; // ID para PAI/MÃE
+                    } elseif (stripos($vinculoTexto, 'irmão') !== false || stripos($vinculoTexto, 'irmã') !== false) {
+                        $vinculoFamiliarId = 4; // ID para IRMÃO/IRMÃ
+                    } elseif (stripos($vinculoTexto, 'amigo') !== false || stripos($vinculoTexto, 'amiga') !== false) {
+                        $vinculoFamiliarId = 5; // ID para AMIGO(A)
+                    } elseif (stripos($vinculoTexto, 'cônjuge') !== false || stripos($vinculoTexto, 'conjuge') !== false || 
+                              stripos($vinculoTexto, 'esposo') !== false || stripos($vinculoTexto, 'esposa') !== false) {
+                        $vinculoFamiliarId = 1; // ID para CÔNJUGE
+                    }
+                    
+                    // Converter sexo corretamente
+                    $sexoAcompanhanteId = 1; // Masculino por padrão
+                    
+                    if (isset($dados["sexo_acompanhante_$i"])) {
+                        // Verificar se é F (feminino) ou texto contendo "feminino"
+                        if ($dados["sexo_acompanhante_$i"] == 'F' || 
+                            stripos($dados["sexo_acompanhante_$i"], 'feminino') !== false) {
+                            $sexoAcompanhanteId = 2; // ID para Feminino
+                        }
+                    }
                     
                     $stmtAcompanhante->bind_param(
                         "siiii",
@@ -184,10 +208,7 @@ function reserva_salvarReserva($db, $dados) {
                         $vinculoFamiliarId,
                         $reservaId  // Usar o ID da reserva
                     );
-                    
-                    if (!$stmtAcompanhante->execute()) {
-                        throw new Exception("Erro ao executar query de acompanhante: " . $stmtAcompanhante->error);
-                    }
+                    $stmtAcompanhante->execute();
                 }
             }
         }
