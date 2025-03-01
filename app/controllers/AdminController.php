@@ -14,7 +14,6 @@ class AdminController {
     public function index() {
         require_once ROOT_PATH . '/app/views/dashboard/tela_admin.php';
     }
-    
     public function reserva() {
         // Garantir que a sessão está iniciada
         if (session_status() == PHP_SESSION_NONE) {
@@ -130,4 +129,49 @@ class AdminController {
         echo json_encode($cidades);
         exit;
     }
+    public function editarReserva() {
+        // Garantir que a sessão está iniciada
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Obter o ID da reserva da URL
+        $id = isset($_GET['id']) ? $_GET['id'] : null;
+        
+        if ($id) {
+            // Conectar ao banco de dados
+            $database = new \App\Config\Database();
+            $db = $database->getConnection();
+            
+            // Instanciar o modelo de reserva
+            $reservaModel = new \App\Models\Model_reserva($db);
+            
+            // Buscar dados da reserva
+            $reserva = $reservaModel->getReservaById($id);
+            
+            // Buscar dados necessários para os selects
+            $motivos = $reservaModel->getAllMotivosViagem();
+            $statusHospede = $reservaModel->getAllStatusHospede();
+            $ufs = $reservaModel->getAllUfs();
+            $graduacoes = $reservaModel->getAllGraduacoes();
+            $tiposHospede = $reservaModel->getAllTiposHospede();
+            $sexos = $reservaModel->getAllSexos();
+            
+            // Buscar cidades da UF selecionada
+            $cidades = [];
+            if (!empty($reserva['uf_id'])) {
+                $cidades = $reservaModel->getCidadesByUf($reserva['uf_id']);
+            }
+            
+            // Definir o caminho para o conteúdo do formulário
+            $formContent = ROOT_PATH . '/app/views/reserva/editar_reserva.php';
+            
+            // Carregar a view principal do admin
+            require_once ROOT_PATH . '/app/views/dashboard/tela_admin.php';
+        } else {
+            header('Location: /Hotel/admin/listar');
+            exit;
+        }
+    }
 }
+

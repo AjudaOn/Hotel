@@ -47,4 +47,37 @@ class Model_reserva {
         include_once ROOT_PATH . '/app/models/public_functions/reserva_salvarReserva.php';
         return reserva_salvarReserva($this->db, $dados);
     }
+    public function getReservaById($id) {
+        $query = "SELECT 
+            r.*,
+            h.nome AS nome_hospede,
+            h.cpf,
+            h.email,
+            h.telefone,
+            h.status_hospede_id,
+            h.graduacao_id,
+            h.tipo_hospede_id,
+            h.sexo_id,
+            h.pet_hospede,
+            h.necessidades_especiais,
+            h.obs_hospede AS observacao,
+            h.uf_id,
+            h.municipio_id
+        FROM 
+            reservas r
+        LEFT JOIN 
+            hospedes h ON r.id = h.reserva_id
+        WHERE 
+            r.id = ?";
+    $stmt = $this->db->prepare($query);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        return $result->fetch_assoc();
+    }
+    
+    return null;
+    }
 }

@@ -14,13 +14,17 @@ class Router {
     }
 
     public function dispatch($url) {
+        // Separar a URL base dos parâmetros de consulta
+        $urlParts = explode('?', $url);
+        $baseUrl = $urlParts[0];
+        
         // Verificar se a URL contém parâmetros (como {uf_id})
         foreach ($this->routes as $route => $handler) {
             // Converter o padrão de rota em uma expressão regular
             $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '([^/]+)', $route);
             $pattern = '@^' . $pattern . '$@';
             
-            if (preg_match($pattern, $url, $matches)) {
+            if (preg_match($pattern, $baseUrl, $matches)) {
                 array_shift($matches); // Remove a correspondência completa
                 
                 $controller = $handler['controller'];
@@ -38,15 +42,16 @@ class Router {
         }
         
         // Se nenhuma rota corresponder
-        if (array_key_exists($url, $this->routes)) {
-            $controller = $this->routes[$url]['controller'];
-            $method = $this->routes[$url]['method'];
+        if (array_key_exists($baseUrl, $this->routes)) {
+            $controller = $this->routes[$baseUrl]['controller'];
+            $method = $this->routes[$baseUrl]['method'];
             
             // Adicionar o namespace completo aos controllers
             $controllerClass = "\\App\\Controllers\\{$controller}";
             $controllerInstance = new $controllerClass();
             $controllerInstance->$method();
         } else {
+            error_log("Rota não encontrada: " . $baseUrl);
             header("Location: /Hotel/login");
         }
     }
@@ -63,6 +68,7 @@ $router->add('/views/dashboard', 'AdminController', 'dashboard');
 $router->add('/admin/reserva', 'AdminController', 'reserva');
 $router->add('/admin/salvar-reserva', 'AdminController', 'salvarReserva');
 $router->add('/admin/listar', 'AdminController', 'listarReservas'); // Nova rota
+$router->add('/admin/reserva/editar', 'AdminController', 'editarReserva'); // Rota para edição de reserva
 
 // Rota para buscar cidades por UF
 $router->add('/admin/get-cidades-by-uf/{uf_id}', 'AdminController', 'getCidadesByUf');
