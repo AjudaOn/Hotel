@@ -151,6 +151,7 @@ function reserva_salvarReserva($db, $dados) {
             throw new Exception("Erro ao executar query de hóspede: " . $stmtHospede->error);
         }
         // 3. Inserir acompanhantes se houver
+        // In the section where you handle companions, update to use IDs directly
         if (isset($dados['qtde_hospedes']) && $dados['qtde_hospedes'] > 1) {
             // Obter o ID do hospede recém-inserido
             $hospedeId = $db->insert_id;
@@ -169,46 +170,22 @@ function reserva_salvarReserva($db, $dados) {
                     if (!$stmtAcompanhante) {
                         throw new Exception("Erro ao preparar query de acompanhante: " . $db->error);
                     }
-                    // Determinar o ID do vínculo familiar com base no texto
-                    $vinculoFamiliarId = 1; // Valor padrão para CÔNJUGE
-                    
-                    // Mapear os textos comuns para IDs
-                    $vinculoTexto = isset($dados["vinculo_familiar_$i"]) ? trim($dados["vinculo_familiar_$i"]) : '';
-                    
-                    // Verificar o texto do vínculo e atribuir o ID correto
-                    if (stripos($vinculoTexto, 'filho') !== false || stripos($vinculoTexto, 'filha') !== false) {
-                        $vinculoFamiliarId = 2; // ID para FILHO(A)
-                    } elseif (stripos($vinculoTexto, 'pai') !== false || stripos($vinculoTexto, 'mãe') !== false) {
-                        $vinculoFamiliarId = 3; // ID para PAI/MÃE
-                    } elseif (stripos($vinculoTexto, 'irmão') !== false || stripos($vinculoTexto, 'irmã') !== false) {
-                        $vinculoFamiliarId = 4; // ID para IRMÃO/IRMÃ
-                    } elseif (stripos($vinculoTexto, 'amigo') !== false || stripos($vinculoTexto, 'amiga') !== false) {
-                        $vinculoFamiliarId = 5; // ID para AMIGO(A)
-                    } elseif (stripos($vinculoTexto, 'cônjuge') !== false || stripos($vinculoTexto, 'conjuge') !== false || 
-                              stripos($vinculoTexto, 'esposo') !== false || stripos($vinculoTexto, 'esposa') !== false) {
-                        $vinculoFamiliarId = 1; // ID para CÔNJUGE
-                    }
-                    
-                    // Converter sexo corretamente
-                    $sexoAcompanhanteId = 1; // Masculino por padrão
-                    
-                    if (isset($dados["sexo_acompanhante_$i"])) {
-                        // Verificar se é F (feminino) ou texto contendo "feminino"
-                        if ($dados["sexo_acompanhante_$i"] == 'F' || 
-                            stripos($dados["sexo_acompanhante_$i"], 'feminino') !== false) {
-                            $sexoAcompanhanteId = 2; // ID para Feminino
-                        }
-                    }
+                    // Use the IDs directly from the form
+                    $sexoId = isset($dados["sexo_acompanhante_$i"]) ? $dados["sexo_acompanhante_$i"] : 1;
+                    $vinculoId = isset($dados["vinculo_familiar_$i"]) ? $dados["vinculo_familiar_$i"] : 1;
                     
                     $stmtAcompanhante->bind_param(
                         "siiii",
                         $dados["nome_acompanhante_$i"],
                         $dados["idade_acompanhante_$i"],
-                        $sexoAcompanhanteId,
-                        $vinculoFamiliarId,
-                        $reservaId  // Usar o ID da reserva
+                        $sexoId,
+                        $vinculoId,
+                        $reservaId
                     );
-                    $stmtAcompanhante->execute();
+                    
+                    if (!$stmtAcompanhante->execute()) {
+                        throw new Exception("Erro ao executar query de acompanhante: " . $stmtAcompanhante->error);
+                    }
                 }
             }
         }
