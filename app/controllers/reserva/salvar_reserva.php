@@ -86,9 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $resultado = reserva_salvarReserva($db, $dados);
 
     if ($resultado === true) {
-        // Salvar a mensagem de sucesso na sessão
-        $_SESSION['sucesso_msg'] = "Reserva salva com sucesso!";
-        
         ?>
         <!DOCTYPE html>
         <html>
@@ -133,12 +130,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     background: #0b5ed7;
                 }
             </style>
+            <script>
+                // Função para verificar se a sessão está ativa antes de redirecionar
+                function redirecionarComSessao() {
+                    // Armazenar a URL atual para referência
+                    var currentUrl = window.location.href;
+                    
+                    // Redirecionar para a página de admin
+                    window.location.href = '/Hotel/admin';
+                }
+            </script>
         </head>
         <body>
             <div class="popup">
                 <h3>Sucesso!</h3>
                 <p>Reserva salva com sucesso!</p>
-                <button class="ok-button" onclick="window.location.href='/Hotel/admin/reserva'">OK</button>
+                <button class="ok-button" onclick="redirecionarComSessao()">OK</button>
             </div>
         </body>
         </html>
