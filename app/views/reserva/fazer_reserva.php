@@ -1,13 +1,14 @@
 <div class="container-fluid p-0">
     <h1 class="h3 mb-3">Fazer Reserva</h1>
-
-    <!-- No início do arquivo, após a tag <form> -->
-    <form action="/Hotel/admin/salvar-reserva" method="post">
+    
+    <!-- Ajustando a action do formulário para usar o caminho correto -->
+    <form id="reservaForm" action="/Hotel/app/controllers/reserva/salvar_reserva.php" method="post">
         <!-- Campo oculto para a etapa do protocolo -->
         <input type="hidden" name="etapa_id" value="1">
+        <input type="hidden" name="redirect_to" value="/Hotel/app/views/admin/tela_admin.php">
         
-        <!-- Mensagens de feedback -->
-        <?php if (isset($mensagem) && !empty($mensagem)): ?>
+        <!-- Remover as mensagens duplicadas -->
+        <?php if (isset($mensagem) && !empty($mensagem) && !strpos($_SERVER['REQUEST_URI'], 'sucesso')): ?>
             <div class="alert alert-<?php echo $tipoMensagem; ?> alert-dismissible fade show" role="alert">
                 <?php echo $mensagem; ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -202,35 +203,32 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <form id="formReserva" method="POST" action="/Hotel/app/controllers/reserva/salvar_reserva.php">
+                    <!-- Remover o formulário aninhado que estava aqui -->
                     <!-- Na seção de UF -->
-                    <!-- Na seção OUTRAS INFORMAÇÕES, substitua os campos de cidade e UF por: -->
-                    <div class="row">
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">UF:</label>
-                            <select class="form-select" name="uf" id="uf">
-                                <option value="">----</option>
-                                <?php if (isset($ufs) && is_array($ufs)): ?>
-                                    <?php foreach ($ufs as $uf): ?>
-                                        <option value="<?php echo $uf['id']; ?>"><?php echo $uf['sigla']; ?></option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Cidade de Origem:</label>
-                            <select class="form-select" name="cidade_origem" id="cidade_origem" disabled>
-                                <option value="">Selecione uma UF primeiro</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Necessidades Especiais?</label>
-                            <select class="form-select" name="necessidades_especiais">
-                                <option value="">---------</option>
-                                <option value="Sim">Sim</option>
-                                <option value="Não">Não</option>
-                            </select>
-                        </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">UF:</label>
+                        <select class="form-select" name="uf" id="uf">
+                            <option value="">----</option>
+                            <?php if (isset($ufs) && is_array($ufs)): ?>
+                                <?php foreach ($ufs as $uf): ?>
+                                    <option value="<?php echo $uf['id']; ?>"><?php echo $uf['sigla']; ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Cidade de Origem:</label>
+                        <select class="form-select" name="cidade_origem" id="cidade_origem" disabled>
+                            <option value="">Selecione uma UF primeiro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Necessidades Especiais?</label>
+                        <select class="form-select" name="necessidades_especiais">
+                            <option value="">---------</option>
+                            <option value="Sim">Sim</option>
+                            <option value="Não">Não</option>
+                        </select>
                     </div>
                 </div>
                 <div class="row">
@@ -243,7 +241,7 @@
         </div>
 
         <div class="text-end mb-4">
-            <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+            <a href="/Hotel/app/views/admin/tela_admin.php" class="btn btn-secondary me-2">Cancelar</a>
             <button type="submit" class="btn btn-primary">Salvar</button>
         </div>
     </form>
@@ -255,3 +253,12 @@
 <script src="/Hotel/app/views/reserva/scripts/reserva_pet.js"></script>
 <script src="/Hotel/app/views/reserva/scripts/reserva_cidades.js"></script>
 <script src="/Hotel/app/views/reserva/scripts/reserva_diarias.js"></script>
+
+<!-- Adicionar script para garantir o redirecionamento correto -->
+<script>
+document.getElementById('reservaForm').addEventListener('submit', function(e) {
+    // Permitir que o formulário seja enviado normalmente
+    // Mas garantir que após o salvamento, o redirecionamento seja feito corretamente
+    localStorage.setItem('redirectAfterSave', '/Hotel/app/views/admin/tela_admin.php');
+});
+</script>
