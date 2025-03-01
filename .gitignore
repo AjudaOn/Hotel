@@ -1,0 +1,14 @@
+# Ignorar arquivos de configuração com dados sensíveis
+/app/config/database.php
+
+# Ignorar arquivos temporários
+*.tmp
+*.log
+
+# Ignorar diretórios de bibliotecas se estiver usando composer
+/vendor/
+
+# Ignorar arquivos específicos de IDEs
+.idea/
+.vscode/
+*.sublime-*

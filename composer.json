@@ -1,0 +1,12 @@
+{
+    "name": "hotel/sistema",
+    "description": "Sistema de Gestão Hoteleira",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "require": {
+        "php": ">=7.4"
+    }
+}
