@@ -42,27 +42,21 @@ class AdminController {
         $tiposHospede = $reservaModel->getAllTiposHospede();
         $sexos = $reservaModel->getAllSexos();
         
-        // Verificar se há mensagens de erro ou sucesso
-        $mensagem = '';
-        $tipoMensagem = '';
-        
-        if (isset($_SESSION['sucesso_msg'])) {
-            $mensagem = $_SESSION['sucesso_msg'];
-            $tipoMensagem = 'success';
-            unset($_SESSION['sucesso_msg']);
-        } elseif (isset($_SESSION['erro_msg'])) {
-            $mensagem = $_SESSION['erro_msg'];
-            $tipoMensagem = 'danger';
-            unset($_SESSION['erro_msg']);
-        }
-        
-        // Recuperar dados do formulário se houver
-        $formData = isset($_SESSION['form_data']) ? $_SESSION['form_data'] : null;
-        
-        // Define o caminho para o formulário de reserva
+        // Definir o caminho para o conteúdo do formulário
         $formContent = ROOT_PATH . '/app/views/reserva/fazer_reserva.php';
         
-        // Carrega o template principal com o formulário de reserva
+        // Carregar a view principal do admin
+        require_once ROOT_PATH . '/app/views/dashboard/tela_admin.php';
+    }
+    public function listarReservas() {
+        // Garantir que a sessão está iniciada
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        // Definir o caminho para o conteúdo do formulário
+        $formContent = ROOT_PATH . '/app/views/reserva/listar_reserva.php';
+        
+        // Carregar a view principal do admin
         require_once ROOT_PATH . '/app/views/dashboard/tela_admin.php';
     }
     public function salvarReserva() {

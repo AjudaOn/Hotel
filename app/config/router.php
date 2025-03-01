@@ -62,6 +62,7 @@ $router->add('/admin', 'AdminController', 'index');
 $router->add('/views/dashboard', 'AdminController', 'dashboard');
 $router->add('/admin/reserva', 'AdminController', 'reserva');
 $router->add('/admin/salvar-reserva', 'AdminController', 'salvarReserva');
+$router->add('/admin/listar', 'AdminController', 'listarReservas'); // Nova rota
 
 // Rota para buscar cidades por UF
 $router->add('/admin/get-cidades-by-uf/{uf_id}', 'AdminController', 'getCidadesByUf');

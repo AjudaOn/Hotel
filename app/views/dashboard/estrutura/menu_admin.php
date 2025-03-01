@@ -34,7 +34,7 @@
             </li>
 
             <li class="sidebar-item">
-                <a class="sidebar-link" href="ui-typography.html">
+                <a class="sidebar-link" href="/Hotel/admin/listar">
                     <i class="align-middle" data-feather="align-left"></i> <span class="align-middle">Em análise</span>
                 </a>
             </li>

@@ -1,5 +1,5 @@
 <div class="container-fluid p-0">
-    <h1 class="h3 mb-3">Fazer Reserva</h1>
+    <h1 class="h3 mb-3">REGISTRO DE RESERVA</h1>
     
     <!-- Ajustando a action do formulário para usar o caminho correto -->
     <form id="reservaForm" action="/Hotel/app/controllers/reserva/salvar_reserva.php" method="post">
@@ -16,12 +16,12 @@
         <?php endif; ?>
         
         <!-- INFORMAÇÕES DA PRÉ-RESERVA -->
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-light">
-                <h5 class="card-title text-success mb-0">INFORMAÇÕES DA PRÉ-RESERVA</h5>
-            </div>
+        <div class="card mb-4 shadow-sm">            
             <div class="card-body">
+            <h5 class="card-title mb-0">INFORMAÇÕES DA PRÉ-RESERVA</h5>
                 <div class="row">
+                    
+                    <div class="col-md-12 mb-3"></div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Entrada:</label>
                         <input type="date" class="form-control" name="data_entrada" id="data_entrada" required 
@@ -71,10 +71,10 @@
 
         <!-- DADOS DO HÓSPEDE PRINCIPAL -->
         <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-light">
-                <h5 class="card-title text-success mb-0">DADOS DO HÓSPEDE PRINCIPAL</h5>
-            </div>
+            
             <div class="card-body">
+                <h5 class="card-title mb-0">DADOS DO HÓSPEDE PRINCIPAL</h5><br>
+                <div class="row"></div>                                
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Nome Completo:</label>
@@ -88,7 +88,7 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">CPF:</label>
-                        <input type="text" class="form-control" name="cpf" required>
+                        <input type="text" class="form-control" name="cpf" id="cpf" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Telefone:</label>
@@ -149,11 +149,17 @@
         </div>
 
         <!-- INFORMAÇÃO DO ACOMPANHANTE - Será mostrado/escondido via JavaScript -->
+                     
+
+
+
         <div class="card mb-4 shadow-sm" id="acompanhantes_card" style="display: none;">
-            <div class="card-header bg-light">
-                <h5 class="card-title text-success mb-0" id="acompanhantes_title">INFORMAÇÃO DO ACOMPANHANTE</h5>
-            </div>
+            
+                
+            
             <div class="card-body">
+                <h5 class="card-title mb-0" id="acompanhantes_title">INFORMAÇÃO DO ACOMPANHANTE</h5>
+                <div class="row"><br></div>
                 <div id="acompanhantes_container">
                     <!-- Campos de acompanhantes serão gerados dinamicamente via JavaScript -->
                 </div>
@@ -253,7 +259,66 @@
 <script src="/Hotel/app/views/reserva/scripts/reserva_pet.js"></script>
 <script src="/Hotel/app/views/reserva/scripts/reserva_cidades.js"></script>
 <script src="/Hotel/app/views/reserva/scripts/reserva_diarias.js"></script>
+// ... no final do arquivo, antes do fechamento do </body>
 
+<script>
+    // Função para formatar CPF enquanto digita
+    document.getElementById('cpf').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não for dígito
+        
+        if (value.length > 11) {
+            value = value.substring(0, 11);
+        }
+        
+        // Aplica a máscara conforme vai digitando
+        if (value.length > 9) {
+            value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*/, '$1.$2.$3-$4');
+        } else if (value.length > 6) {
+            value = value.replace(/^(\d{3})(\d{3})(\d{3}).*/, '$1.$2.$3');
+        } else if (value.length > 3) {
+            value = value.replace(/^(\d{3})(\d{3}).*/, '$1.$2');
+        }
+        
+        e.target.value = value;
+    });
+    
+    // Função para formatar telefone de forma flexível
+    document.querySelector('input[name="telefone"]').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        
+        // Formato flexível para números brasileiros e paraguaios
+        if (value.length > 0) {
+            // Se começar com +, adiciona o código do país
+            if (e.target.value.startsWith('+')) {
+                if (value.length <= 2) {
+                    e.target.value = '+' + value;
+                } else if (value.length <= 5) {
+                    e.target.value = '+' + value.substring(0, 2) + ' ' + value.substring(2);
+                } else if (value.length <= 10) {
+                    e.target.value = '+' + value.substring(0, 2) + ' ' + value.substring(2, 5) + '-' + value.substring(5);
+                } else {
+                    e.target.value = '+' + value.substring(0, 2) + ' ' + value.substring(2, 5) + '-' + value.substring(5, 9) + '-' + value.substring(9);
+                }
+            } 
+            // Formato brasileiro padrão
+            else if (value.length <= 11) {
+                if (value.length <= 2) {
+                    // Apenas DDD
+                } else if (value.length <= 6) {
+                    e.target.value = '(' + value.substring(0, 2) + ') ' + value.substring(2);
+                } else if (value.length <= 10) {
+                    e.target.value = '(' + value.substring(0, 2) + ') ' + value.substring(2, 6) + '-' + value.substring(6);
+                } else {
+                    e.target.value = '(' + value.substring(0, 2) + ') ' + value.substring(2, 7) + '-' + value.substring(7);
+                }
+            } 
+            // Para números mais longos (internacionais)
+            else {
+                // Mantém como está para números muito longos
+            }
+        }
+    });
+</script>
 <!-- Adicionar script para garantir o redirecionamento correto -->
 <script>
 document.getElementById('reservaForm').addEventListener('submit', function(e) {
