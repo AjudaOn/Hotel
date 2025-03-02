@@ -2,8 +2,10 @@
     <h1 class="h3 mb-3">EDITAR RESERVA</h1>
 
     <!-- Debug para verificar os dados da query -->
-  
-
+    <?php 
+    // Incluir o controller de acompanhantes
+    include_once ROOT_PATH . '/app/controllers/reserva/editar_acompanhantes.php';
+    ?>
     
     <?php if (isset($reserva)): ?>
         <div class="card mb-4 shadow-sm">
@@ -20,6 +22,16 @@
                 <?php else: ?>
                     <div class="alert alert-info mt-3">
                         Nenhum acompanhante encontrado para esta reserva.
+                    </div>
+                <?php endif; ?>
+                
+                <!-- Novo debug para os acompanhantes do novo controller -->
+                <h5 class="mt-4">Debug - Dados dos Acompanhantes (Novo Controller):</h5>
+                <?php if (isset($_SESSION['acompanhantes_query']) && is_array($_SESSION['acompanhantes_query']) && count($_SESSION['acompanhantes_query']) > 0): ?>
+                    <pre><?php print_r($_SESSION['acompanhantes_query']); ?></pre>
+                <?php else: ?>
+                    <div class="alert alert-warning mt-3">
+                        <?php echo isset($_SESSION['erro_acompanhantes']) ? $_SESSION['erro_acompanhantes'] : 'Nenhum acompanhante encontrado no novo controller.'; ?>
                     </div>
                 <?php endif; ?>
             </div>
