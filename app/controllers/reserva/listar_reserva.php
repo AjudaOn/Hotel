@@ -30,7 +30,7 @@ $query = "SELECT
     u.cpf_usuario AS cpf, 
     r.data_entrada, 
     r.data_saida, 
-    r.qtd_pessoas AS acompanhantes
+    (r.qtd_pessoas - 1) AS acompanhantes
 FROM 
     reservas r
 JOIN 
