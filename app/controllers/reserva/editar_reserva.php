@@ -47,6 +47,7 @@ $queryCompleta = "SELECT
     h.obs_hospede AS observacao,
     h.uf_id,
     h.municipio_id,
+    m.nome AS municipio_nome,  /* Adicionando o nome do município */
     a.id AS acompanhante_id,
     a.nm_acomp,
     a.idade_acomp,
@@ -58,6 +59,8 @@ FROM
     reservas r
 LEFT JOIN 
     hospedes h ON r.id = h.reserva_id
+LEFT JOIN 
+    municipios m ON h.municipio_id = m.id  /* Adicionando join com municípios */
 LEFT JOIN 
     acompanhantes a ON r.id = a.reserva_id
 LEFT JOIN 
@@ -99,7 +102,8 @@ while ($row = $resultCompleta->fetch_assoc()) {
             'necessidades_especiais' => $row['necessidades_especiais'],
             'observacao' => $row['observacao'],
             'uf_id' => $row['uf_id'],
-            'municipio_id' => $row['municipio_id']
+            'municipio_id' => $row['municipio_id'],
+            'municipio_nome' => $row['municipio_nome']  // Adicionando o nome do município
         ];
     }
     

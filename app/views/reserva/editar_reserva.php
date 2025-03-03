@@ -38,7 +38,20 @@
             $vinculos[] = $row;
         }
     }
-
+    // Buscar o nome do município se tiver municipio_id
+    if (isset($reserva['municipio_id']) && !empty($reserva['municipio_id'])) {
+        // Buscar o nome do município se tiver municipio_id
+        if (isset($reserva['municipio_id']) && !empty($reserva['municipio_id'])) {
+            // Usar id_municipio na cláusula WHERE conforme mostrado na imagem
+            $query_municipio = "SELECT id_municipio_nome FROM municipios WHERE id_municipio = " . $reserva['municipio_id'];
+            $result_municipio = $db->query($query_municipio);
+            if ($result_municipio && $result_municipio->num_rows > 0) {
+                $municipio = $result_municipio->fetch_assoc();
+                $reserva['municipio_nome'] = $municipio['id_municipio_nome'];
+            }
+        }
+    }
+    
     // Usar os acompanhantes do novo controller
     if (isset($_SESSION['acompanhantes_query']) && is_array($_SESSION['acompanhantes_query']) && count($_SESSION['acompanhantes_query']) > 0) {
         $acompanhantes = $_SESSION['acompanhantes_query'];
@@ -50,7 +63,16 @@
             <div class="card-body">
                 <h5>Debug - Dados da Reserva:</h5>
                 <pre><?php print_r($reserva); ?></pre>
-
+                
+                <!-- Adicionar informação específica do município -->
+                <?php if (isset($reserva['municipio_id']) && !empty($reserva['municipio_id'])): ?>
+                <h5 class="mt-4">Debug - Informação do Município:</h5>
+                <pre>
+Município ID: <?php echo $reserva['municipio_id']; ?>
+Município Nome: <?php echo isset($reserva['municipio_nome']) ? $reserva['municipio_nome'] : 'Nome não encontrado'; ?>
+                </pre>
+                <?php endif; ?>
+    
                 <?php if (isset($acompanhantes) && is_array($acompanhantes) && count($acompanhantes) > 0): ?>
                     <h5 class="mt-4">Debug - Dados dos Acompanhantes:</h5>
                     <pre><?php print_r($acompanhantes); ?></pre>
@@ -62,7 +84,7 @@
                         Nenhum acompanhante encontrado para esta reserva.
                     </div>
                 <?php endif; ?>
-
+    
                 <!-- Novo debug para os acompanhantes do novo controller -->
                 <h5 class="mt-4">Debug - Dados dos Acompanhantes (Novo Controller):</h5>
                 <?php if (isset($_SESSION['acompanhantes_query']) && is_array($_SESSION['acompanhantes_query']) && count($_SESSION['acompanhantes_query']) > 0): ?>
@@ -369,7 +391,7 @@
                     <div class="col-md-2 mb-3">
                         <label class="form-label">UF:</label>
                         <select class="form-select" name="uf" id="uf">
-                            <option value="">----</option>
+                            <option value="">-------</option>
                             <?php if (isset($ufs) && is_array($ufs)): ?>
                                 <?php foreach ($ufs as $uf): ?>
                                     <option value="<?php echo $uf['id']; ?>" 
@@ -383,7 +405,11 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Cidade de Origem:</label>
                         <select class="form-select" name="cidade_origem" id="cidade_origem">
-                            <option value="">Selecione uma UF primeiro</option>
+                            <?php if (isset($reserva['municipio_nome'])): ?>
+                                <option value="<?php echo $reserva['municipio_id']; ?>"><?php echo $reserva['municipio_nome']; ?></option>
+                            <?php else: ?>
+                                <option value="">Selecione uma UF primeiro</option>
+                            <?php endif; ?>
                             <!-- As cidades serão carregadas via JavaScript -->
                         </select>
                     </div>
@@ -391,8 +417,8 @@
                         <label class="form-label">Necessidades Especiais?</label>
                         <select class="form-select" name="necessidades_especiais">
                             <option value="">---------</option>
-                            <option value="Sim" <?php echo (isset($reserva['necessidades_especiais']) && $reserva['necessidades_especiais'] == 'Sim') ? 'selected' : ''; ?>>Sim</option>
-                            <option value="Não" <?php echo (isset($reserva['necessidades_especiais']) && $reserva['necessidades_especiais'] == 'Não') ? 'selected' : ''; ?>>Não</option>
+                            <option value="Sim" <?php echo (isset($reserva['necessidades_especiais']) && ($reserva['necessidades_especiais'] == 'Não' || $reserva['necessidades_especiais'] == '0')) ? 'selected' : ''; ?>>Não</option>
+                            <option value="Sim" <?php echo (isset($reserva['necessidades_especiais']) && ($reserva['necessidades_especiais'] == 'Sim' || $reserva['necessidades_especiais'] == '1')) ? 'selected' : ''; ?>>Sim</option>
                         </select>
                     </div>
                     <!-- Adicionar estes campos ocultos para armazenar os valores do banco -->
@@ -424,5 +450,6 @@
 <script src="/Hotel/app/views/reserva/scripts/reserva_diarias.js"></script>
 <script src="/Hotel/app/views/reserva/scripts/editar_reserva_formatacao.js"></script>
 <script src="/Hotel/app/views/reserva/scripts/editar_reserva_redirecionamento.js"></script>
-
+<!-- Remover a linha duplicada abaixo -->
+<!-- <script src="/Hotel/app/views/reserva/scripts/editar_reserva_cidades.js"></script> -->
 </body>
