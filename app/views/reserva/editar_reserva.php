@@ -5,8 +5,46 @@
     <?php 
     // Incluir o controller de acompanhantes
     include_once ROOT_PATH . '/app/controllers/reserva/editar_acompanhantes.php';
-    ?>
     
+    // Buscar os sexos do banco
+    $query_sexos = "SELECT id, nm_sexo FROM sexo ORDER BY nm_sexo";
+    $result_sexos = $db->query($query_sexos);
+    $sexos = [];
+    if ($result_sexos && $result_sexos->num_rows > 0) {
+        while ($row = $result_sexos->fetch_assoc()) {
+            $sexos[] = $row;
+        }
+    }
+    
+    // Buscar os sexos para acompanhantes (mesma consulta, mas variável diferente)
+    $sexos_acomp = $sexos;
+    
+    // Buscar os tipos de hóspede - Corrigindo o nome da coluna
+    $query_tipos = "SELECT id, nm_tipo AS descricao FROM tipo_hospede ORDER BY nm_tipo";
+    $result_tipos = $db->query($query_tipos);
+    $tiposHospede = [];
+    if ($result_tipos && $result_tipos->num_rows > 0) {
+        while ($row = $result_tipos->fetch_assoc()) {
+            $tiposHospede[] = $row;
+        }
+    }
+    
+    // Buscar os vínculos familiares do banco
+    $query_vinculos = "SELECT id, nm_vinculo FROM vinculo_familiar ORDER BY nm_vinculo";
+    $result_vinculos = $db->query($query_vinculos);
+    $vinculos = [];
+    if ($result_vinculos && $result_vinculos->num_rows > 0) {
+        while ($row = $result_vinculos->fetch_assoc()) {
+            $vinculos[] = $row;
+        }
+    }
+
+    // Usar os acompanhantes do novo controller
+    if (isset($_SESSION['acompanhantes_query']) && is_array($_SESSION['acompanhantes_query']) && count($_SESSION['acompanhantes_query']) > 0) {
+        $acompanhantes = $_SESSION['acompanhantes_query'];
+    }
+    ?>
+
     <?php if (isset($reserva)): ?>
         <div class="card mb-4 shadow-sm">
             <div class="card-body">
@@ -24,7 +62,7 @@
                         Nenhum acompanhante encontrado para esta reserva.
                     </div>
                 <?php endif; ?>
-                
+
                 <!-- Novo debug para os acompanhantes do novo controller -->
                 <h5 class="mt-4">Debug - Dados dos Acompanhantes (Novo Controller):</h5>
                 <?php if (isset($_SESSION['acompanhantes_query']) && is_array($_SESSION['acompanhantes_query']) && count($_SESSION['acompanhantes_query']) > 0): ?>
@@ -169,7 +207,10 @@
                             <option value="">---------</option>
                             <?php if (isset($tiposHospede) && is_array($tiposHospede)): ?>
                                 <?php foreach ($tiposHospede as $tipo): ?>
-                                    <option value="<?php echo $tipo['id']; ?>"><?php echo $tipo['descricao']; ?></option>
+                                    <option value="<?php echo $tipo['id']; ?>" 
+                                        <?php echo (isset($reserva['tipo_hospede_id']) && $reserva['tipo_hospede_id'] == $tipo['id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($tipo['descricao']); ?>
+                                    </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
@@ -180,7 +221,10 @@
                             <option value="">---------</option>
                             <?php if (isset($sexos) && is_array($sexos)): ?>
                                 <?php foreach ($sexos as $sexo): ?>
-                                    <option value="<?php echo $sexo['id']; ?>"><?php echo $sexo['descricao']; ?></option>
+                                    <option value="<?php echo $sexo['id']; ?>"
+                                        <?php echo (isset($reserva['sexo_id']) && $reserva['sexo_id'] == $sexo['id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($sexo['nm_sexo']); ?>
+                                    </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
@@ -201,9 +245,8 @@
                     <?php
                     // Garantir que $acompanhantes esteja definido
                     if (!isset($acompanhantes) || !is_array($acompanhantes)) {
-                        $acompanhantes = isset($_SESSION['acompanhantes']) ? $_SESSION['acompanhantes'] : [];
+                        $acompanhantes = isset($_SESSION['acompanhantes_query']) ? $_SESSION['acompanhantes_query'] : [];
                     }
-
                     // Se ainda não tiver acompanhantes mas a reserva indicar que deveria ter
                     if (empty($acompanhantes) && isset($reserva['qtd_pessoas']) && $reserva['qtd_pessoas'] > 1) {
                         $numAcompanhantes = $reserva['qtd_pessoas'] - 1;
@@ -219,13 +262,14 @@
                             ];
                         }
                     }
-
                     if (!empty($acompanhantes)):
                         foreach ($acompanhantes as $index => $acompanhante):
                     ?>
                             <div class="row acompanhante-row">
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Nome do Acompanhante <?php echo $index + 1; ?>:</label>
+                                    <input type="hidden" name="acompanhante_id_<?php echo $index; ?>" 
+                                        value="<?php echo isset($acompanhante['acompanhante_id']) ? $acompanhante['acompanhante_id'] : ''; ?>">
                                     <input type="text" class="form-control" name="nome_acompanhante_<?php echo $index; ?>"
                                         value="<?php echo isset($acompanhante['nm_acomp']) ? htmlspecialchars($acompanhante['nm_acomp']) : ''; ?>" required>
                                 </div>
@@ -238,13 +282,21 @@
                                     <label class="form-label">Sexo:</label>
                                     <select class="form-select" name="sexo_acompanhante_<?php echo $index; ?>" required>
                                         <option value="">Selecione</option>
-                                        <?php if (isset($sexos) && is_array($sexos)): foreach ($sexos as $sexo): ?>
+                                        <?php 
+                                        // Debug do valor do sexo
+                                        echo "<!-- Sexo ID: " . (isset($acompanhante['acompanhante_sexo_id']) ? $acompanhante['acompanhante_sexo_id'] : 'não definido') . " -->";
+                                        
+                                        if (isset($sexos_acomp) && is_array($sexos_acomp)): 
+                                            foreach ($sexos_acomp as $sexo): 
+                                        ?>
                                                 <option value="<?php echo $sexo['id']; ?>"
-                                                    <?php echo (isset($acompanhante['sexo_id']) && $acompanhante['sexo_id'] == $sexo['id']) ? 'selected' : ''; ?>>
-                                                    <?php echo htmlspecialchars($sexo['descricao']); ?>
+                                                    <?php echo (isset($acompanhante['acompanhante_sexo_id']) && $acompanhante['acompanhante_sexo_id'] == $sexo['id']) ? 'selected' : ''; ?>>
+                                                    <?php echo htmlspecialchars($sexo['nm_sexo']); ?>
                                                 </option>
-                                        <?php endforeach;
-                                        endif; ?>
+                                        <?php 
+                                            endforeach;
+                                        endif; 
+                                        ?>
                                     </select>
                                 </div>
                                 <div class="col-md-3 mb-3">
@@ -279,13 +331,12 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">PET:</label>
                         <select class="form-select" name="tem_pet" id="tem_pet">
-                            <option value="Não" selected>Não</option>
-                            <option value="Sim">Sim</option>
+                            <option value="Não" <?php echo (!isset($reserva['pet_hospede']) || $reserva['pet_hospede'] == 0) ? 'selected' : ''; ?>>Não</option>
+                            <option value="Sim" <?php echo (isset($reserva['pet_hospede']) && $reserva['pet_hospede'] > 0) ? 'selected' : ''; ?>>Sim</option>
                         </select>
                     </div>
-                    <div class="col-md-6 mb-3" id="qtde_pet_field">
+                    <div class="col-md-6 mb-3" id="qtde_pet_field" <?php echo (!isset($reserva['pet_hospede']) || $reserva['pet_hospede'] == 0) ? 'style="display: none;"' : ''; ?>>
                         <label class="form-label">Qtde PET:</label>
-                        <!-- Adicione este bloco de estilo no cabeçalho da página ou no seu arquivo CSS -->
                         <style>
                             /* Remove as setinhas de incremento/decremento dos inputs do tipo number */
                             .no-spinner::-webkit-inner-spin-button,
@@ -299,7 +350,8 @@
                                 -moz-appearance: textfield;
                             }
                         </style>
-                        <input type="number" class="form-control no-spinner" name="qtde_pet" id="qtde_pet" min="0" value="0">
+                        <input type="number" class="form-control no-spinner" name="qtde_pet" id="qtde_pet" min="0" 
+                               value="<?php echo isset($reserva['pet_hospede']) ? intval($reserva['pet_hospede']) : '0'; ?>">
                     </div>
                 </div>
             </div>
@@ -320,15 +372,19 @@
                             <option value="">----</option>
                             <?php if (isset($ufs) && is_array($ufs)): ?>
                                 <?php foreach ($ufs as $uf): ?>
-                                    <option value="<?php echo $uf['id']; ?>"><?php echo $uf['sigla']; ?></option>
+                                    <option value="<?php echo $uf['id']; ?>" 
+                                        <?php echo (isset($reserva['uf_id']) && $reserva['uf_id'] == $uf['id']) ? 'selected' : ''; ?>>
+                                        <?php echo $uf['sigla']; ?>
+                                    </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Cidade de Origem:</label>
-                        <select class="form-select" name="cidade_origem" id="cidade_origem" disabled>
+                        <select class="form-select" name="cidade_origem" id="cidade_origem">
                             <option value="">Selecione uma UF primeiro</option>
+                            <!-- As cidades serão carregadas via JavaScript -->
                         </select>
                     </div>
                     <div class="col-md-4 mb-3">
@@ -339,7 +395,8 @@
                             <option value="Não" <?php echo (isset($reserva['necessidades_especiais']) && $reserva['necessidades_especiais'] == 'Não') ? 'selected' : ''; ?>>Não</option>
                         </select>
                     </div>
-                    <!-- Adicionar este campo oculto na seção de UF/Cidade -->
+                    <!-- Adicionar estes campos ocultos para armazenar os valores do banco -->
+                    <input type="hidden" id="uf_id_salvo" value="<?php echo isset($reserva['uf_id']) ? $reserva['uf_id'] : ''; ?>">
                     <input type="hidden" id="municipio_id_salvo" value="<?php echo isset($reserva['municipio_id']) ? $reserva['municipio_id'] : ''; ?>">
                     <!-- Remover a duplicação do campo Necessidades Especiais -->
                 </div>

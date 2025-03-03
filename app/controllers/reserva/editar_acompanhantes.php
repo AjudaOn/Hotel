@@ -51,7 +51,9 @@ if (!$reserva_id) {
         LEFT JOIN 
             vinculo_familiar v ON a.vinculo_familiar_id = v.id
         WHERE 
-            a.reserva_id = ?";
+            a.reserva_id = ?
+        ORDER BY 
+            a.id ASC";
 
         $stmt = $db->prepare($query);
         $stmt->bind_param("i", $reserva_id);
