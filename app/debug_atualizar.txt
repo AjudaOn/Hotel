@@ -1,0 +1,26 @@
+Dados POST recebidos em 2025-03-04 19:16:17:
+Array
+(
+    [reserva_id] => 12
+    [redirect_to] => /Hotel/app/views/admin/tela_admin.php
+    [etapa_id] => 1
+    [data_entrada] => 2025-03-10
+    [data_saida] => 2025-03-14
+    [qtd_diarias] => 4
+    [qtd_pessoas] => 1
+    [motivo_viagem_id] => 1
+    [nome_hospede] => Edir Schweigert Fonseca
+    [email] => gransaigon@gmail.com
+    [cpf] => 031.976.216-54
+    [telefone] => (61) 98159-9760
+    [status] => 1
+    [graduacao_id] => 14
+    [tipo] => 3
+    [sexo] => 2
+    [tem_pet] => Não
+    [qtde_pet] => 0
+    [uf] => 14
+    [cidade_origem] => 2201150
+    [necessidades_especiais] => Sim
+    [observacao] => teste23
+)

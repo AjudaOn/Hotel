@@ -453,3 +453,9 @@ Município Nome: <?php echo isset($reserva['municipio_nome']) ? $reserva['munici
 <!-- Remover a linha duplicada abaixo -->
 <!-- <script src="/Hotel/app/views/reserva/scripts/editar_reserva_cidades.js"></script> -->
 </body>
+<?php
+// Definir o caminho raiz se não estiver definido
+if (!defined('ROOT_PATH')) {
+    define('ROOT_PATH', $_SERVER['DOCUMENT_ROOT'] . '/Hotel');
+}
+// Resto do código...
