@@ -2,86 +2,75 @@ document.addEventListener('DOMContentLoaded', function() {
     const ufSelect = document.getElementById('uf');
     const cidadeSelect = document.getElementById('cidade_origem');
     
-    // Função para carregar cidades
-    function carregarCidades(ufId) {
-        if (!ufId) return;
-        
+    if (ufSelect && cidadeSelect) {
         cidadeSelect.disabled = true;
-        cidadeSelect.innerHTML = '<option value="">Carregando...</option>';
-
-        // Usar XMLHttpRequest síncrono para garantir que as cidades sejam carregadas antes de continuar
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', `/Hotel/app/controllers/reserva/buscar_cidades.php?uf_id=${ufId}&nocache=${new Date().getTime()}`, false); // false para requisição síncrona
         
-        try {
-            xhr.send();
+        ufSelect.addEventListener('change', function() {
+            const ufId = this.value;
+            console.log('UF selecionada:', ufId);
             
-            if (xhr.status === 200) {
-                const cidades = JSON.parse(xhr.responseText);
-                cidadeSelect.innerHTML = '';
+            if (ufId) {
+                cidadeSelect.disabled = true;
+                cidadeSelect.innerHTML = '<option value="">Carregando cidades...</option>';
                 
-                const municipioIdSalvo = document.getElementById('municipio_id_salvo')?.value;
-                let cidadeEncontrada = false;
+                const url = `/Hotel/app/controllers/reserva/buscar_cidades.php?uf_id=${ufId}`;
+                console.log('URL da requisição:', url);
                 
-                cidades.forEach(cidade => {
-                    const option = document.createElement('option');
-                    option.value = cidade.id_municipio;
-                    option.textContent = cidade.id_municipio_nome;
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                
+                xhr.onload = function() {
+                    console.log('Status da resposta:', xhr.status);
+                    console.log('Resposta do servidor:', xhr.responseText);
                     
-                    if (municipioIdSalvo && cidade.id_municipio == municipioIdSalvo) {
-                        option.selected = true;
-                        cidadeEncontrada = true;
+                    if (xhr.status === 200) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            console.log('Dados processados:', data);
+                            
+                            cidadeSelect.innerHTML = '<option value="">Selecione uma cidade</option>';
+                            
+                            if (data && data.length > 0) {
+                                data.forEach(function(cidade) {
+                                    const option = document.createElement('option');
+                                    option.value = cidade.id;
+                                    option.textContent = cidade.nome;
+                                    cidadeSelect.appendChild(option);
+                                });
+                                cidadeSelect.disabled = false;
+                            } else {
+                                cidadeSelect.innerHTML = '<option value="">Nenhuma cidade encontrada</option>';
+                                cidadeSelect.disabled = false;
+                            }
+                        } catch (e) {
+                            console.error('Erro ao processar JSON:', e);
+                            console.error('Resposta recebida:', xhr.responseText);
+                            cidadeSelect.innerHTML = '<option value="">Erro ao processar dados</option>';
+                            cidadeSelect.disabled = false;
+                        }
+                    } else {
+                        console.error('Erro na requisição:', xhr.status);
+                        cidadeSelect.innerHTML = '<option value="">Erro ao carregar cidades</option>';
+                        cidadeSelect.disabled = false;
                     }
-                    
-                    cidadeSelect.appendChild(option);
-                });
+                };
                 
-                cidadeSelect.disabled = false;
+                xhr.onerror = function(e) {
+                    console.error('Erro de conexão:', e);
+                    cidadeSelect.innerHTML = '<option value="">Erro de conexão</option>';
+                    cidadeSelect.disabled = false;
+                };
                 
-                // Se não encontrou a cidade salva, selecionar a primeira
-                if (!cidadeEncontrada && cidades.length > 0) {
-                    cidadeSelect.selectedIndex = 0;
-                }
+                xhr.send();
             } else {
-                console.error('Erro ao carregar cidades:', xhr.status);
-                cidadeSelect.innerHTML = '<option value="">Erro ao carregar cidades</option>';
-                cidadeSelect.disabled = false;
+                cidadeSelect.innerHTML = '<option value="">Selecione uma UF primeiro</option>';
+                cidadeSelect.disabled = true;
             }
-        } catch (error) {
-            console.error('Erro ao processar cidades:', error);
-            cidadeSelect.innerHTML = '<option value="">Erro ao processar cidades</option>';
-            cidadeSelect.disabled = false;
-        }
-    }
-
-    // Carregar cidades quando a UF mudar
-    ufSelect.addEventListener('change', function() {
-        carregarCidades(this.value);
-    });
-
-    // Executar imediatamente - não esperar por eventos
-    console.log("Inicializando carregamento de cidades");
-    
-    // Verificar se há uma UF salva e carregar suas cidades
-    const ufIdSalvo = document.getElementById('uf_id_salvo')?.value;
-    
-    if (ufIdSalvo) {
-        console.log("UF salva encontrada:", ufIdSalvo);
-        // Definir a UF no select
-        ufSelect.value = ufIdSalvo;
-        // Carregar as cidades imediatamente
-        carregarCidades(ufIdSalvo);
-    } else if (ufSelect.value) {
-        console.log("Usando UF do select:", ufSelect.value);
-        // Carregar as cidades com o valor atual do select
-        carregarCidades(ufSelect.value);
-    }
-    
-    // Adicionar um evento para quando a janela terminar de carregar
-    window.addEventListener('load', function() {
-        console.log("Janela carregada, verificando UF novamente");
+        });
+        
         if (ufSelect.value) {
-            carregarCidades(ufSelect.value);
+            const event = new Event('change');
+            ufSelect.dispatchEvent(event);
         }
-    });
+    }
 });

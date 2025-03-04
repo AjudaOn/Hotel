@@ -224,7 +224,7 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Cidade de Origem:</label>
-                        <select class="form-select" name="cidade_origem" id="cidade_origem" disabled>
+                        <select class="form-select" name="cidade_origem" id="cidade_origem">
                             <option value="">Selecione uma UF primeiro</option>
                         </select>
                     </div>

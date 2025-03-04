@@ -1,0 +1,39 @@
+Dados POST recebidos em 2025-03-04 15:14:10:
+Array
+(
+    [reserva_id] => 13
+    [redirect_to] => /Hotel/app/views/admin/tela_admin.php
+    [etapa_id] => 1
+    [data_entrada] => 2025-03-10
+    [data_saida] => 2025-03-14
+    [qtd_diarias] => 4
+    [qtd_pessoas] => 3
+    [motivo_viagem_id] => 3
+    [nome_hospede] => Edir Schweigert Fonseca
+    [email] => gransaigon@gmail.com
+    [cpf] => 031.976.216-54
+    [telefone] => (61) 98159-9760
+    [status] => 1
+    [graduacao_id] => 14
+    [tipo] => 1
+    [sexo] => 2
+    [acompanhante_id_0] => 13
+    [nome_acompanhante_0] => Maria da Silva
+    [idade_acompanhante_0] => 50
+    [sexo_acompanhante_0] => 1
+    [vinculo_familiar_0] => 1
+    [acompanhante_id_1] => 14
+    [nome_acompanhante_1] => Luis Fernando
+    [idade_acompanhante_1] => 14
+    [sexo_acompanhante_1] => 2
+    [vinculo_familiar_1] => 4
+    [tem_pet] => Sim
+    [qtde_pet] => 1
+    [uf] => 26
+    [cidade_origem] => 3301207
+    [necessidades_especiais] => Sim
+    [observacao] => teste observacao
+)
+
+
+ERRO: Unknown column 'nome_hospede' in 'field list'
