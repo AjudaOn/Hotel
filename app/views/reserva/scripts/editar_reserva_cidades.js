@@ -36,15 +36,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 try {
                     const data = JSON.parse(xhr.responseText);
                     console.log("Cidades recebidas:", data);
-                    
                     // Limpar o select
                     cidadeSelect.innerHTML = '';
                     
-                    // Adicionar opção padrão
+                    // Adicionar opção padrão com o município salvo se existir
                     const defaultOption = document.createElement('option');
-                    defaultOption.value = '';
-                    defaultOption.textContent = 'Selecione uma cidade';
-                    cidadeSelect.appendChild(defaultOption);
+                    defaultOption.value = municipioIdSalvo ? municipioIdSalvo.value : '';
+                    
+                    // Aqui está o problema - vamos usar o nome do município que vem do banco
+                    if (municipioIdSalvo && municipioIdSalvo.value) {
+                        // Tentar obter o nome do município do dataset
+                        if (municipioIdSalvo.dataset && municipioIdSalvo.dataset.nome) {
+                            defaultOption.textContent = municipioIdSalvo.dataset.nome;
+                        } else {
+                            // Procurar o nome do município na lista de cidades
+                            const cidadeEncontrada = data.find(cidade => cidade.id_municipio == municipioIdSalvo.value);
+                            if (cidadeEncontrada) {
+                                defaultOption.textContent = cidadeEncontrada.id_municipio_nome;
+                            } else {
+                                // Se não encontrar, usar um texto genérico
+                                defaultOption.textContent = 'Cidade ID: ' + municipioIdSalvo.value;
+                            }
+                        }
+                        // Adicionar a opção padrão apenas se tivermos um município salvo
+                        cidadeSelect.appendChild(defaultOption);
+                    }
+                    // Removemos completamente o else com "Selecione uma cidade"
                     
                     // Adicionar as cidades
                     if (data && data.length > 0) {

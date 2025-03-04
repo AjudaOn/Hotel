@@ -423,7 +423,9 @@ Município Nome: <?php echo isset($reserva['municipio_nome']) ? $reserva['munici
                     </div>
                     <!-- Adicionar estes campos ocultos para armazenar os valores do banco -->
                     <input type="hidden" id="uf_id_salvo" value="<?php echo isset($reserva['uf_id']) ? $reserva['uf_id'] : ''; ?>">
-                    <input type="hidden" id="municipio_id_salvo" value="<?php echo isset($reserva['municipio_id']) ? $reserva['municipio_id'] : ''; ?>">
+                    <input type="hidden" id="municipio_id_salvo" 
+                           value="<?php echo isset($reserva['municipio_id']) ? $reserva['municipio_id'] : ''; ?>"
+                           data-nome="<?php echo isset($reserva['municipio_nome']) ? $reserva['municipio_nome'] : ''; ?>">
                     <!-- Remover a duplicação do campo Necessidades Especiais -->
                 </div>
                 <div class="row">
@@ -451,6 +453,76 @@ Município Nome: <?php echo isset($reserva['municipio_nome']) ? $reserva['munici
 <script src="/Hotel/app/views/reserva/scripts/editar_reserva_formatacao.js"></script>
 <script src="/Hotel/app/views/reserva/scripts/editar_reserva_redirecionamento.js"></script>
 <!-- Remover a linha duplicada abaixo -->
+<script>
+    $(document).ready(function() {
+        // Função para carregar cidades com base na UF selecionada
+        function carregarCidades(ufId, cidadeSelecionada = null) {
+            $.ajax({
+                url: '/Hotel/admin/get-cidades-by-uf/' + ufId,
+                type: 'GET',
+                dataType: 'json',
+                success: function(cidades) {
+                    var selectCidade = $('#cidade_origem');
+                    var cidadeEncontrada = false;
+                    
+                    // Guardar a opção atual se for a cidade salva
+                    var cidadeSalva = null;
+                    if (selectCidade.find('option:first').val() == cidadeSelecionada) {
+                        cidadeSalva = selectCidade.find('option:first').clone();
+                    }
+                    
+                    // Limpar o select mas NÃO adicionar a opção padrão "Selecione uma cidade"
+                    selectCidade.empty();
+                    
+                    // Se temos uma cidade salva, adicioná-la primeiro e selecioná-la
+                    if (cidadeSalva) {
+                        selectCidade.append(cidadeSalva);
+                        cidadeEncontrada = true;
+                    }
+                    
+                    // Adicionar as cidades da lista
+                    $.each(cidades, function(index, cidade) {
+                        var selected = '';
+                        if (cidadeSelecionada && cidadeSelecionada == cidade.id) {
+                            selected = 'selected';
+                            cidadeEncontrada = true;
+                        }
+                        selectCidade.append('<option value="' + cidade.id + '" ' + selected + '>' + cidade.nome + '</option>');
+                    });
+                    
+                    // Se não encontrou a cidade na lista e não temos uma cidade salva,
+                    // mas temos o ID e nome da cidade no campo oculto
+                    if (!cidadeEncontrada && cidadeSelecionada) {
+                        var municipioNome = $('#municipio_id_salvo').data('nome');
+                        if (municipioNome) {
+                            selectCidade.prepend('<option value="' + cidadeSelecionada + '" selected>' + municipioNome + '</option>');
+                        }
+                    }
+                }
+            });
+        }
+
+        // Quando a UF for alterada, carrega as cidades
+        $('#uf').change(function() {
+            var ufId = $(this).val();
+            if (ufId) {
+                carregarCidades(ufId);
+            } else {
+                $('#cidade_origem').empty();
+                // Se não tiver UF selecionada, mostrar a mensagem
+                $('#cidade_origem').append('<option value="">Selecione uma UF primeiro</option>');
+            }
+        });
+
+        // Ao carregar a página, se já tiver UF selecionada, carrega as cidades
+        var ufInicial = $('#uf').val();
+        var cidadeInicial = $('#municipio_id_salvo').val();
+        
+        if (ufInicial && cidadeInicial) {
+            carregarCidades(ufInicial, cidadeInicial);
+        }
+    });
+</script>
 <!-- <script src="/Hotel/app/views/reserva/scripts/editar_reserva_cidades.js"></script> -->
 </body>
 <?php

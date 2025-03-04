@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             const data = JSON.parse(xhr.responseText);
                             console.log('Dados processados:', data);
                             
-                            cidadeSelect.innerHTML = '<option value="">Selecione uma cidade</option>';
+                            cidadeSelect.innerHTML = '<option value="">Tirar 2 Selecione uma cidade</option>';
                             
                             if (data && data.length > 0) {
                                 data.forEach(function(cidade) {

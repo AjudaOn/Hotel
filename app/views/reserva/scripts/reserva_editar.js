@@ -127,7 +127,7 @@ function carregarCidadesPorUf(ufId) {
     fetch(`/Hotel/admin/get-cidades-by-uf/${ufId}`)
         .then(response => response.json())
         .then(data => {
-            cidadeSelect.innerHTML = '<option value="">Selecione uma cidade</option>';
+            cidadeSelect.innerHTML = '<option value="">Tirar Selecione uma cidade</option>';
             
             data.forEach(cidade => {
                 const option = document.createElement('option');
