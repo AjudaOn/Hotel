@@ -64,6 +64,7 @@ if ($result) {
                                 <td><?= date('d/m/Y', strtotime($reserva['data_saida'])) ?></td>
                                 <td><?= htmlspecialchars($reserva['acompanhantes']) ?></td>
                                 <td>
+                                    <a href="#" class="btn btn-warning btn-sm">Definr UH</a>
                                     <a href="/Hotel/admin/reserva/editar?id=<?= $reserva['id'] ?>" class="btn btn-primary btn-sm">Editar</a>
                                 </td>
                             </tr>
