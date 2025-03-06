@@ -26,7 +26,7 @@ class AdminController {
         
         // Instanciar o modelo de reserva
         $reservaModel = new \App\Models\Model_reserva($db);
-        
+        $this->view('reserva/definir_quarto_reserva');
         // Buscar motivos de viagem
         $motivos = $reservaModel->getAllMotivosViagem();
         
@@ -162,15 +162,19 @@ class AdminController {
             if (!empty($reserva['uf_id'])) {
                 $cidades = $reservaModel->getCidadesByUf($reserva['uf_id']);
             }
-            
-            // Definir o caminho para o conteúdo do formulário
-            $formContent = ROOT_PATH . '/app/views/reserva/editar_reserva.php';
-            
-            // Carregar a view principal do admin
-            require_once ROOT_PATH . '/app/views/dashboard/tela_admin.php';
-        } else {
-            header('Location: /Hotel/admin/listar');
-            exit;
+            $this->view('reserva/editar_reserva');
         }
+    }
+    public function definirQuartoReserva() {
+        // Garantir que a sessão está iniciada
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Definir o caminho para o conteúdo do formulário
+        $formContent = ROOT_PATH . '/app/views/reserva/definir_quarto.php';
+        
+        // Carregar a view principal do admin
+        require_once ROOT_PATH . '/app/views/dashboard/tela_admin.php';
     }
 }

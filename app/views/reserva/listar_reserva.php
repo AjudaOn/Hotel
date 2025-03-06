@@ -66,6 +66,10 @@ if ($result) {
                                 <td>
                                     <a href="#" class="btn btn-warning btn-sm">Definr UH</a>
                                     <a href="/Hotel/admin/reserva/editar?id=<?= $reserva['id'] ?>" class="btn btn-primary btn-sm">Editar</a>
+                                    <!-- Corrigindo o caminho do link -->
+                                    <a href="/Hotel/admin/reserva/definir-quarto?id=<?= $reserva['id'] ?>" class="btn btn-sm btn-info">
+                                        <i class="fas fa-bed"></i> Definir Quarto
+                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
