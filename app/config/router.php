@@ -69,8 +69,8 @@ $router->add('/admin/reserva', 'AdminController', 'reserva');
 $router->add('/admin/salvar-reserva', 'AdminController', 'salvarReserva');
 $router->add('/admin/listar', 'AdminController', 'listarReservas'); // Nova rota
 $router->add('/admin/reserva/editar', 'AdminController', 'editarReserva'); // Rota para edição de reserva
-$router->add('/admin/reserva/definir-quarto', 'AdminController', 'definirQuartoReserva');
-$router->add('/admin/get-cidades-by-uf/{uf_id}', 'AdminController', 'getCidadesByUf');
+// $router->add('/admin/reserva/definir-quarto', 'AdminController', 'definirQuartoReserva');
+// $router->add('/admin/get-cidades-by-uf/{uf_id}', 'AdminController', 'getCidadesByUf');
 
 // Rotas do usuário
 $router->add('/user', 'UserController', 'index');

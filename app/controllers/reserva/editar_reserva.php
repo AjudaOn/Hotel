@@ -17,12 +17,13 @@ if (!$reserva_id) {
     exit;
 }
 
-// Criar conexão com o banco de dados
-$db = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
+// Criar conexão com o banco de dados usando a classe Database
+$database = new \App\Config\Database();
+$db = $database->getConnection();
 
 // Verificar conexão
-if ($db->connect_error) {
-    die("Conexão falhou: " . $db->connect_error);
+if (!$db) {
+    die("Erro na conexão com o banco de dados");
 }
 
 // Buscar dados da reserva, hospede principal e acompanhantes em uma única consulta
